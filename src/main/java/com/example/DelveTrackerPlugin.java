@@ -89,4 +89,9 @@ public class DelveTrackerPlugin extends Plugin
 		return configManager.getConfig(DelveTrackerConfig.class);
 	}
 
+	@Provides
+	DelveTrackerOverlay provideOverlay(DelveTrackerPlugin plugin){
+		return new DelveTrackerOverlay(plugin, client, config);
+	}
+
 }
