@@ -14,6 +14,7 @@ import net.runelite.client.plugins.Plugin;
 import net.runelite.client.plugins.PluginDescriptor;
 import net.runelite.client.ui.overlay.OverlayManager;
 
+import java.util.Arrays;
 import java.util.Set;
 
 @Slf4j
@@ -54,7 +55,7 @@ public class DelveTrackerPlugin extends Plugin
 	public void onChatMessage(ChatMessage chatMessage){
 		if (chatMessage.getType() == ChatMessageType.GAMEMESSAGE && inRegion()){
 			String message = chatMessage.getMessage();
-			if (message.contains("Completed!")){
+			if (message.contains("Delve level") && message.contains("duration")){
 				addLevel();
 			}
 		}
@@ -63,7 +64,14 @@ public class DelveTrackerPlugin extends Plugin
 
 	public boolean inRegion(){
 		final var region = client.getTopLevelWorldView();
-		return REGION_IDS.contains(region.getId()) && region.isInstance();
+		if (!region.isInstance()){ return false; }
+
+		for (var r : region.getMapRegions()){
+			if (REGION_IDS.contains(r)){
+				return true;
+			}
+		}
+		return false;
 	}
 
 

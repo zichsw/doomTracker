@@ -33,7 +33,7 @@ public class DelveTrackerOverlay extends OverlayPanel {
         }
 
         panelComponent.getChildren().add(LineComponent.builder()
-                .left("Boss HP:")
+                .left("Levels :")
                 .right(String.valueOf(plugin.getLevels()))
                 .build());
 
