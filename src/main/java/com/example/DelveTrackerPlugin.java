@@ -31,7 +31,7 @@ public class DelveTrackerPlugin extends Plugin
 	private int floorsSinceEye = 0;
 	private int floorsSinceCloth = 0;
 	private int floorsSinceTreads = 0;
-	private int florsSincePet = 0;
+	private int floorsSincePet = 0;
 
 	private double uniqueRolls = 0;
 	private double clothRolls = 0;
@@ -213,28 +213,29 @@ public class DelveTrackerPlugin extends Plugin
 		return false;
 	}
 
+	public void addFloorCompletions(int level) {
+		floorCompletions[level - 1] += 1;
 
-	public void addFloorCompletions(int level){
-		floorCompletions[level-1] += 1;
-
-		// add config options in the future to allow toggle
-		floorsSinceCloth +=1;
-		floorsSinceEye += 1;
-		floorsSinceTreads += 1;
-		floorsSinceUnique += 1;
-
-
-		// make it toggleable
-		clothRolls += clothChance.get(level);
-		uniqueRolls += clothChance.get(level);
-
-		eyeRolls += eyeChance.get(level);
-		uniqueRolls += eyeChance.get(level);
-
-		treadsRolls += treadsChance.get(level);
-		uniqueRolls += treadsChance.get(level);
-
+		// increment counters
+		floorsSinceCloth++;
+		floorsSinceEye++;
+		floorsSinceTreads++;
+		floorsSinceUnique++;
+		floorsSincePet++;
 	}
+
+	public double calculateCumulativeRolls(HashMap<Integer, Double> chanceMap) {
+		double noDropProb = 1.0;
+		for (int i = 1; i <= floorCompletions.length; i++) {
+			int count = floorCompletions[i - 1];
+			double p = chanceMap.getOrDefault(i, 0.0);
+			noDropProb *= Math.pow(1 - p, count);
+		}
+		return 1 - noDropProb;
+	}
+
+
+
 
 	public int [] getFloorCompletions() {
 		return floorCompletions;
@@ -255,26 +256,34 @@ public class DelveTrackerPlugin extends Plugin
 	public int getFloorsSinceUnique() {
 		return floorsSinceUnique;
 	}
-
-	public double getUniqueRolls() {
-		return uniqueRolls;
+	public double getClothRolls() {
+		return calculateCumulativeRolls(clothChance);
 	}
 
 	public double getEyeRolls() {
-		return eyeRolls;
+		return calculateCumulativeRolls(eyeChance);
 	}
 
 	public double getTreadsRolls() {
-		return treadsRolls;
+		return calculateCumulativeRolls(treadsChance);
 	}
 
-
-	public double getClothRolls() {
-		return clothRolls;
+	public double getUniqueRolls() {
+		return calculateCumulativeRolls(uniqueChance);
 	}
 
-	public double getPetRolls(){
-		return petRolls;
+	public double getPetRolls() {
+		return calculateCumulativeRolls(petChance);
+	}
+
+	// Reset all counters
+	public void resetCounters() {
+		floorCompletions = new int[9];
+		floorsSinceCloth = 0;
+		floorsSinceEye = 0;
+		floorsSinceTreads = 0;
+		floorsSinceUnique = 0;
+		floorsSincePet = 0;
 	}
 
 

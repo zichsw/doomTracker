@@ -37,8 +37,8 @@ public class DelveTrackerOverlay extends OverlayPanel {
                 .build());
 
         panelComponent.getChildren().add(LineComponent.builder()
-                .left("Chance of seeing unique : %").
-                right(String.valueOf(plugin.getUniqueRolls()))
+                .left("Chance of seeing unique:")
+                .right(String.format("%.2f%%", plugin.getUniqueRolls() * 100))
                 .build());
 
 
