@@ -7,7 +7,6 @@ import net.runelite.client.ui.overlay.components.LineComponent;
 
 import javax.inject.Inject;
 import java.awt.*;
-import java.util.List;
 
 
 public class DelveTrackerOverlay extends OverlayPanel {
@@ -18,7 +17,7 @@ public class DelveTrackerOverlay extends OverlayPanel {
 
     @Inject
     public DelveTrackerOverlay(DelveTrackerPlugin plugin, Client client, DelveTrackerConfig config) {
-        super(plugin);
+        this.plugin = plugin;
         this.client = client;
         this.config = config;
         setPosition(OverlayPosition.TOP_LEFT);
@@ -33,9 +32,15 @@ public class DelveTrackerOverlay extends OverlayPanel {
         }
 
         panelComponent.getChildren().add(LineComponent.builder()
-                .left("Levels :")
-                .right(String.valueOf(plugin.getLevels()))
+                .left("Floors tracked :")
+                .right(String.valueOf(plugin.getTotalFloors()))
                 .build());
+
+        panelComponent.getChildren().add(LineComponent.builder()
+                .left("Chance of seeing unique : %").
+                right(String.valueOf(plugin.getUniqueRolls()))
+                .build());
+
 
         return super.render(graphics);
     }
