@@ -1,13 +1,48 @@
-package com.example;
+/*
+ * Copyright (c) 2018, Psikoi <https://github.com/psikoi>
+ * Copyright (c) 2018, Adam <Adam@sigterm.info>
+ * Copyright (c) 2018, Steve <https://github.com/zichsw>
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
+ *
+ * 1. Redistributions of source code must retain the above copyright notice, this
+ *    list of conditions and the following disclaimer.
+ * 2. Redistributions in binary form must reproduce the above copyright notice,
+ *    this list of conditions and the following disclaimer in the documentation
+ *    and/or other materials provided with the distribution.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+ * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+ * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+ * DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR
+ * ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+ * (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+ * LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+ * ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+ * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ */
 
+package com.example;
 import com.google.inject.Provides;
 import javax.inject.Inject;
 import lombok.extern.slf4j.Slf4j;
+
 import net.runelite.api.ChatMessageType;
 import net.runelite.api.Client;
 import net.runelite.api.GameState;
+import net.runelite.api.gameval.InventoryID;
+import net.runelite.api.gameval.ItemID;
+import net.runelite.api.ItemContainer;
+import net.runelite.api.ScriptEvent;
+import net.runelite.api.ScriptID;
+
 import net.runelite.api.events.ChatMessage;
 import net.runelite.api.events.GameStateChanged;
+import net.runelite.api.events.ScriptPreFired;
+
 import net.runelite.client.RuneLite;
 import net.runelite.client.config.ConfigManager;
 import net.runelite.client.eventbus.Subscribe;
@@ -15,9 +50,11 @@ import net.runelite.client.plugins.Plugin;
 import net.runelite.client.plugins.PluginDescriptor;
 import net.runelite.client.ui.overlay.OverlayManager;
 
+import java.util.Arrays;
+import java.util.Set;
 import java.io.File;
 import java.util.HashMap;
-import java.util.Set;
+
 
 @Slf4j
 @PluginDescriptor(
@@ -32,12 +69,6 @@ public class DelveTrackerPlugin extends Plugin
 	private int floorsSinceCloth = 0;
 	private int floorsSinceTreads = 0;
 	private int floorsSincePet = 0;
-
-	private double uniqueRolls = 0;
-	private double clothRolls = 0;
-	private double eyeRolls = 0;
-	private double treadsRolls = 0;
-	private double petRolls = 0;
 
 	private String rsn = null;
 	private RLReadWrite fileRW;
@@ -166,6 +197,45 @@ public class DelveTrackerPlugin extends Plugin
 		}
 	}
 
+	@Subscribe
+	public void onScriptPreFired(ScriptPreFired event)
+	{
+		if (event.getScriptId() == ScriptID.DOM_LOOT_CLAIM)
+		{
+			ItemContainer inv = client.getItemContainer(InventoryID.DOM_LOOTPILE);
+
+			if (inv == null) return;
+
+			for (var item : inv.getItems()) {
+				if (item.getId() == ItemID.AVERNIC_TREADS){
+					floorsSinceCloth = 0;
+
+					floorsSinceUnique = 0;
+					floorCompletions = new int[9];
+
+				}
+				if (item.getId() == ItemID.DOMPET){
+					floorsSincePet = 0;
+
+				}
+				if (item.getId() == ItemID.EYE_OF_AYAK){
+					floorsSinceEye = 0;
+					floorsSinceUnique = 0;
+					floorCompletions = new int[9];
+
+
+				}
+				if (item.getId() == ItemID.MOKHAIOTL_CLOTH){
+					floorsSinceCloth = 0;
+					floorsSinceUnique = 0;
+					floorCompletions = new int[9];
+
+
+				}
+			}
+		}
+	}
+
 	private void populate () {
 		if (client.getGameState() == GameState.LOGGED_IN && client.getLocalPlayer().getName() != null) {
 			rsn = client.getLocalPlayer().getName();
@@ -274,16 +344,6 @@ public class DelveTrackerPlugin extends Plugin
 
 	public double getPetRolls() {
 		return calculateCumulativeRolls(petChance);
-	}
-
-	// Reset all counters
-	public void resetCounters() {
-		floorCompletions = new int[9];
-		floorsSinceCloth = 0;
-		floorsSinceEye = 0;
-		floorsSinceTreads = 0;
-		floorsSinceUnique = 0;
-		floorsSincePet = 0;
 	}
 
 
