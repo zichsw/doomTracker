@@ -58,7 +58,7 @@ import java.util.HashMap;
 
 @Slf4j
 @PluginDescriptor(
-	name = "Example"
+		name = "Example"
 )
 public class DelveTrackerPlugin extends Plugin
 {
@@ -72,6 +72,7 @@ public class DelveTrackerPlugin extends Plugin
 
 	private String rsn = null;
 	private RLReadWrite fileRW;
+	private boolean dataLoaded = false;
 
 
 
@@ -224,12 +225,12 @@ public class DelveTrackerPlugin extends Plugin
 					floorCompletions = new int[9];
 
 
+
 				}
 				if (item.getId() == ItemID.MOKHAIOTL_CLOTH){
 					floorsSinceCloth = 0;
 					floorsSinceUnique = 0;
 					floorCompletions = new int[9];
-
 
 				}
 			}
@@ -237,13 +238,29 @@ public class DelveTrackerPlugin extends Plugin
 	}
 
 	private void populate () {
-		if (client.getGameState() == GameState.LOGGED_IN && client.getLocalPlayer().getName() != null) {
-			rsn = client.getLocalPlayer().getName();
-			fileRW = new RLReadWrite(dataFolder, rsn);
-			RLReadWrite.Data playerData = fileRW.read();
-
-			floorCompletions = playerData.floors;
+		if (client.getGameState() != GameState.LOGGED_IN || client.getLocalPlayer() == null) {
+			return;
 		}
+
+		String currentName = client.getLocalPlayer().getName();
+		if (currentName == null || currentName.isEmpty()) {
+			return;
+		}
+
+		if (dataLoaded && rsn != null && rsn.equals(currentName)){
+			return; // prevents multiple loads
+		}
+
+		rsn = currentName;
+		fileRW = new RLReadWrite(dataFolder, rsn);
+
+		RLReadWrite.Data playerData = fileRW.read();
+		if (playerData != null) {
+			floorCompletions = Arrays.copyOf(playerData.floors, 9);
+		}
+
+		dataLoaded = true;
+		log.info("Loaded data for {}", rsn);
 	}
 
 	private void save() {
@@ -251,13 +268,10 @@ public class DelveTrackerPlugin extends Plugin
 			try {
 				RLReadWrite.Data playerData = new RLReadWrite.Data(floorCompletions);
 				fileRW.write(playerData);
-				log.info("Player data saved for {}", rsn);
+				log.info("Saved data for {}", rsn);
 			} catch (Exception e) {
-				log.error("Failed to save player data for {}", rsn, e);
+				log.error("Failed to save data for {}", rsn, e);
 			}
-		}
-		else{
-			log.error("Failed to save: fileRW or rsn is null");
 		}
 	}
 
@@ -286,12 +300,13 @@ public class DelveTrackerPlugin extends Plugin
 	public void addFloorCompletions(int level) {
 		floorCompletions[level - 1] += 1;
 
-		// increment counters
 		floorsSinceCloth++;
 		floorsSinceEye++;
 		floorsSinceTreads++;
 		floorsSinceUnique++;
 		floorsSincePet++;
+
+		save(); // Right now, plugin saves immediately after updating. Hopefully doesn't cause issue with performance
 	}
 
 	public double calculateCumulativeRolls(HashMap<Integer, Double> chanceMap) {
