@@ -17,17 +17,31 @@ public class RLReadWrite {
     }
 
     public static class Data{
-        public int [] floors;
-        public double petChance;
-        public double lootChance;
+        public int [] floorsSinceCloth;
+        public int [] floorsSinceEye;
+        public int [] floorsSinceTreads;
+        public int [] floorsSincePet;
+        public int [] floorsSinceUnique;
+
+
 
         public Data(){
-            this.floors = new int[9];
+            this.floorsSinceCloth = new int[9];
+            this.floorsSinceEye = new int[9];
+            this.floorsSinceTreads = new int[9];
+            this.floorsSincePet = new int[9];
+            this.floorsSinceUnique = new int[9];
+
+
 
         }
 
-        public Data(int [] floors) {
-            this.floors = floors;
+        public Data(int[] floorsSinceCloth, int[] floorsSinceEye,  int[] floorsSinceTreads, int [] floorsSincePet, int [] floorsSinceUnique) {
+            this.floorsSinceCloth = floorsSinceCloth;
+            this.floorsSinceEye = floorsSinceEye;
+            this.floorsSinceTreads = floorsSinceTreads;
+            this.floorsSincePet = floorsSincePet;
+            this.floorsSinceUnique = floorsSinceUnique;
         }
     }
 
@@ -39,7 +53,7 @@ public class RLReadWrite {
             Data loaded = gson.fromJson(reader, Data.class);
 
             // bad data
-            if (loaded == null || loaded.floors == null || loaded.floors.length != 9) {
+            if (loaded == null || loaded.floorsSinceUnique == null || loaded.floorsSinceUnique.length != 9) {
                 return new Data();
             }
             return loaded;

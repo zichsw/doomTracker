@@ -46,6 +46,7 @@ import net.runelite.api.events.ScriptPreFired;
 import net.runelite.client.RuneLite;
 import net.runelite.client.config.ConfigManager;
 import net.runelite.client.eventbus.Subscribe;
+import net.runelite.client.events.ConfigChanged;
 import net.runelite.client.plugins.Plugin;
 import net.runelite.client.plugins.PluginDescriptor;
 import net.runelite.client.ui.overlay.OverlayManager;
@@ -64,11 +65,11 @@ public class DelveTrackerPlugin extends Plugin
 {
 	private static final Set<Integer> REGION_IDS = Set.of(5269, 13668, 14180);
 	private int [] floorCompletions  = new int[9];
-	private int floorsSinceUnique = 0;
-	private int floorsSinceEye = 0;
-	private int floorsSinceCloth = 0;
-	private int floorsSinceTreads = 0;
-	private int floorsSincePet = 0;
+	private int [] floorsSinceUnique = new int [9];
+	private int [] floorsSinceEye = new int[9];
+	private int [] floorsSinceCloth = new int[9];
+	private int [] floorsSinceTreads = new int[9];
+	private int [] floorsSincePet = new int[9];
 
 	private String rsn = null;
 	private RLReadWrite fileRW;
@@ -209,28 +210,24 @@ public class DelveTrackerPlugin extends Plugin
 
 			for (var item : inv.getItems()) {
 				if (item.getId() == ItemID.AVERNIC_TREADS){
-					floorsSinceCloth = 0;
-
-					floorsSinceUnique = 0;
-					floorCompletions = new int[9];
+					floorsSinceTreads = new int [9];
+					floorsSinceUnique = new int[9];
 
 				}
 				if (item.getId() == ItemID.DOMPET){
-					floorsSincePet = 0;
+					floorsSincePet = new int [9];
+
 
 				}
 				if (item.getId() == ItemID.EYE_OF_AYAK){
-					floorsSinceEye = 0;
-					floorsSinceUnique = 0;
-					floorCompletions = new int[9];
-
+					floorsSinceEye = new int [9];
+					floorsSinceUnique = new int[9];
 
 
 				}
 				if (item.getId() == ItemID.MOKHAIOTL_CLOTH){
-					floorsSinceCloth = 0;
-					floorsSinceUnique = 0;
-					floorCompletions = new int[9];
+					floorsSinceCloth = new int [9];
+					floorsSinceUnique = new int[9];
 
 				}
 			}
@@ -256,7 +253,11 @@ public class DelveTrackerPlugin extends Plugin
 
 		RLReadWrite.Data playerData = fileRW.read();
 		if (playerData != null) {
-			floorCompletions = Arrays.copyOf(playerData.floors, 9);
+			floorsSinceUnique = Arrays.copyOf(playerData.floorsSinceUnique, 9);
+			floorsSincePet = Arrays.copyOf(playerData.floorsSincePet, 9);
+			floorsSinceCloth = Arrays.copyOf(playerData.floorsSinceCloth, 9);
+			floorsSinceTreads = Arrays.copyOf(playerData.floorsSinceTreads, 9);
+			floorsSinceEye = Arrays.copyOf(playerData.floorsSinceEye, 9);
 		}
 
 		dataLoaded = true;
@@ -266,7 +267,8 @@ public class DelveTrackerPlugin extends Plugin
 	private void save() {
 		if (fileRW != null && rsn != null) {
 			try {
-				RLReadWrite.Data playerData = new RLReadWrite.Data(floorCompletions);
+				RLReadWrite.Data playerData = new RLReadWrite.Data(floorsSinceCloth, floorsSinceEye,
+						floorsSinceTreads, floorsSincePet, floorsSinceUnique);
 				fileRW.write(playerData);
 				log.info("Saved data for {}", rsn);
 			} catch (Exception e) {
@@ -275,10 +277,10 @@ public class DelveTrackerPlugin extends Plugin
 		}
 	}
 
-	public int getTotalFloors(){
+	public int getTotalFloors(int [] counter){
 		int floors = 0;
-		for (int i = 0; i < floorCompletions.length; i++) {
-			floors += floorCompletions[i];
+		for (int i = 0; i < counter.length; i++) {
+			floors += counter[i];
 		}
 		return floors;
 	}
@@ -297,19 +299,19 @@ public class DelveTrackerPlugin extends Plugin
 		return false;
 	}
 
-	public void addFloorCompletions(int level) {
+	private void addFloorCompletions(int level) {
 		floorCompletions[level - 1] += 1;
-
-		floorsSinceCloth++;
-		floorsSinceEye++;
-		floorsSinceTreads++;
-		floorsSinceUnique++;
-		floorsSincePet++;
+		floorsSinceCloth [level - 1] += 1;
+		floorsSinceEye [level - 1] += 1;
+		floorsSinceTreads [level - 1] += 1;
+		floorsSincePet [level - 1] += 1;
+		floorsSinceUnique[level - 1] += 1;
 
 		save(); // Right now, plugin saves immediately after updating. Hopefully doesn't cause issue with performance
 	}
 
-	public double calculateCumulativeRolls(HashMap<Integer, Double> chanceMap) {
+
+	private double calculateCumulativeRolls(HashMap<Integer, Double> chanceMap) {
 		double noDropProb = 1.0;
 		for (int i = 1; i <= floorCompletions.length; i++) {
 			int count = floorCompletions[i - 1];
@@ -326,21 +328,26 @@ public class DelveTrackerPlugin extends Plugin
 		return floorCompletions;
 	}
 
-	public int getFloorsSinceCloth() {
+	public int [] getFloorsSinceCloth() {
 		return floorsSinceCloth;
 	}
 
-	public int getFloorsSinceEye() {
+	public int [] getFloorsSinceEye() {
 		return floorsSinceEye;
 	}
 
-	public int getFloorsSinceTreads() {
+	public int [] getFloorsSinceTreads() {
 		return floorsSinceTreads;
 	}
 
-	public int getFloorsSinceUnique() {
+	public int [] getFloorsSincePet() {
+		return floorsSincePet;
+	}
+
+	public int [] getFloorsSinceUnique() {
 		return floorsSinceUnique;
 	}
+
 	public double getClothRolls() {
 		return calculateCumulativeRolls(clothChance);
 	}
