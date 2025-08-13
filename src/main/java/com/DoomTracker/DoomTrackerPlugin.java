@@ -62,7 +62,6 @@ import java.util.HashMap;
 public class DoomTrackerPlugin extends Plugin
 {
 	private static final Set<Integer> REGION_IDS = Set.of(5269, 13668, 14180);
-	private int [] floorCompletions  = new int[9];
 	private int [] floorsSinceUnique = new int [9];
 	private int [] floorsSinceEye = new int[9];
 	private int [] floorsSinceCloth = new int[9];
@@ -90,11 +89,11 @@ public class DoomTrackerPlugin extends Plugin
 	protected File dataFolder = new File(RuneLite.RUNELITE_DIR, "delveTracker");
 
 
-	private HashMap<Integer, Double> uniqueChance = new HashMap<>();
-	private HashMap<Integer, Double> petChance = new HashMap<>();
-	private HashMap<Integer, Double> clothChance = new HashMap<>();
-	private HashMap<Integer, Double> eyeChance = new HashMap<>();
-	private HashMap<Integer, Double> treadsChance = new HashMap<>();
+	private final HashMap<Integer, Double> uniqueChance = new HashMap<>();
+	private final HashMap<Integer, Double> petChance = new HashMap<>();
+	private final HashMap<Integer, Double> clothChance = new HashMap<>();
+	private final HashMap<Integer, Double> eyeChance = new HashMap<>();
+	private final HashMap<Integer, Double> treadsChance = new HashMap<>();
 
 
 
@@ -298,7 +297,6 @@ public class DoomTrackerPlugin extends Plugin
 	}
 
 	private void addFloorCompletions(int level) {
-		floorCompletions[level - 1] += 1;
 		floorsSinceCloth [level - 1] += 1;
 		floorsSinceEye [level - 1] += 1;
 		floorsSinceTreads [level - 1] += 1;
@@ -309,10 +307,10 @@ public class DoomTrackerPlugin extends Plugin
 	}
 
 
-	private double calculateCumulativeRolls(HashMap<Integer, Double> chanceMap) {
+	private double calculateCumulativeRolls(int [] counter, HashMap<Integer, Double> chanceMap) {
 		double noDropProb = 1.0;
-		for (int i = 1; i <= floorCompletions.length; i++) {
-			int count = floorCompletions[i - 1];
+		for (int i = 1; i <= counter.length; i++) {
+			int count = counter[i - 1];
 			double p = chanceMap.getOrDefault(i, 0.0);
 			noDropProb *= Math.pow(1 - p, count);
 		}
@@ -320,11 +318,6 @@ public class DoomTrackerPlugin extends Plugin
 	}
 
 
-
-
-	public int [] getFloorCompletions() {
-		return floorCompletions;
-	}
 
 	public int [] getFloorsSinceCloth() {
 		return floorsSinceCloth;
@@ -347,23 +340,23 @@ public class DoomTrackerPlugin extends Plugin
 	}
 
 	public double getClothRolls() {
-		return calculateCumulativeRolls(clothChance);
+		return calculateCumulativeRolls(floorsSinceCloth, clothChance);
 	}
 
 	public double getEyeRolls() {
-		return calculateCumulativeRolls(eyeChance);
+		return calculateCumulativeRolls(floorsSinceEye, eyeChance);
 	}
 
 	public double getTreadsRolls() {
-		return calculateCumulativeRolls(treadsChance);
+		return calculateCumulativeRolls(floorsSinceTreads, treadsChance);
 	}
 
 	public double getUniqueRolls() {
-		return calculateCumulativeRolls(uniqueChance);
+		return calculateCumulativeRolls(floorsSinceUnique, uniqueChance);
 	}
 
 	public double getPetRolls() {
-		return calculateCumulativeRolls(petChance);
+		return calculateCumulativeRolls(floorsSincePet, petChance);
 	}
 
 

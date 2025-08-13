@@ -5,7 +5,7 @@ import net.runelite.client.config.ConfigGroup;
 import net.runelite.client.config.ConfigItem;
 
 
-@ConfigGroup("DelveTrackerConfig")
+@ConfigGroup("DoomTrackerConfig")
 public interface DoomTrackerConfig extends Config
 {
 	// Unique
