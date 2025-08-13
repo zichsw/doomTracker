@@ -1,15 +1,15 @@
-package com.example;
+package com.DoomTracker;
 
 import com.google.gson.Gson;
 
 import java.io.*;
 
 
-public class RLReadWrite {
+public class DoomTrackerReadWrite {
     private File file;
     private Gson gson = new Gson();
 
-    public RLReadWrite(File folder, String rsn) {
+    public DoomTrackerReadWrite(File folder, String rsn) {
         if (!folder.exists()) {
             folder.mkdirs();
         }

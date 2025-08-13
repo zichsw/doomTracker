@@ -1,4 +1,4 @@
-package com.example;
+package com.DoomTracker;
 
 import net.runelite.client.config.Config;
 import net.runelite.client.config.ConfigGroup;
@@ -6,7 +6,7 @@ import net.runelite.client.config.ConfigItem;
 
 
 @ConfigGroup("DelveTrackerConfig")
-public interface DelveTrackerConfig extends Config
+public interface DoomTrackerConfig extends Config
 {
 	// Unique
 	@ConfigItem(

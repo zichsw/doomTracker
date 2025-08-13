@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 2018, Psikoi <https://github.com/psikoi>
  * Copyright (c) 2018, Adam <Adam@sigterm.info>
- * Copyright (c) 2018, Steve <https://github.com/zichsw>
+ * Copyright (c) 2025, Steve <https://github.com/zichsw>
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -25,7 +25,7 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package com.example;
+package com.DoomTracker;
 import com.google.inject.Provides;
 import javax.inject.Inject;
 import lombok.extern.slf4j.Slf4j;
@@ -36,7 +36,6 @@ import net.runelite.api.GameState;
 import net.runelite.api.gameval.InventoryID;
 import net.runelite.api.gameval.ItemID;
 import net.runelite.api.ItemContainer;
-import net.runelite.api.ScriptEvent;
 import net.runelite.api.ScriptID;
 
 import net.runelite.api.events.ChatMessage;
@@ -46,7 +45,6 @@ import net.runelite.api.events.ScriptPreFired;
 import net.runelite.client.RuneLite;
 import net.runelite.client.config.ConfigManager;
 import net.runelite.client.eventbus.Subscribe;
-import net.runelite.client.events.ConfigChanged;
 import net.runelite.client.plugins.Plugin;
 import net.runelite.client.plugins.PluginDescriptor;
 import net.runelite.client.ui.overlay.OverlayManager;
@@ -61,7 +59,7 @@ import java.util.HashMap;
 @PluginDescriptor(
 		name = "Example"
 )
-public class DelveTrackerPlugin extends Plugin
+public class DoomTrackerPlugin extends Plugin
 {
 	private static final Set<Integer> REGION_IDS = Set.of(5269, 13668, 14180);
 	private int [] floorCompletions  = new int[9];
@@ -72,7 +70,7 @@ public class DelveTrackerPlugin extends Plugin
 	private int [] floorsSincePet = new int[9];
 
 	private String rsn = null;
-	private RLReadWrite fileRW;
+	private DoomTrackerReadWrite fileRW;
 	private boolean dataLoaded = false;
 
 
@@ -81,13 +79,13 @@ public class DelveTrackerPlugin extends Plugin
 	private Client client;
 
 	@Inject
-	private DelveTrackerConfig config;
+	private DoomTrackerConfig config;
 
 	@Inject
 	private OverlayManager overlayManager;
 
 	@Inject
-	private DelveTrackerOverlay overlay;
+	private DoomTrackerOverlay overlay;
 
 	protected File dataFolder = new File(RuneLite.RUNELITE_DIR, "delveTracker");
 
@@ -249,9 +247,9 @@ public class DelveTrackerPlugin extends Plugin
 		}
 
 		rsn = currentName;
-		fileRW = new RLReadWrite(dataFolder, rsn);
+		fileRW = new DoomTrackerReadWrite(dataFolder, rsn);
 
-		RLReadWrite.Data playerData = fileRW.read();
+		DoomTrackerReadWrite.Data playerData = fileRW.read();
 		if (playerData != null) {
 			floorsSinceUnique = Arrays.copyOf(playerData.floorsSinceUnique, 9);
 			floorsSincePet = Arrays.copyOf(playerData.floorsSincePet, 9);
@@ -267,7 +265,7 @@ public class DelveTrackerPlugin extends Plugin
 	private void save() {
 		if (fileRW != null && rsn != null) {
 			try {
-				RLReadWrite.Data playerData = new RLReadWrite.Data(floorsSinceCloth, floorsSinceEye,
+				DoomTrackerReadWrite.Data playerData = new DoomTrackerReadWrite.Data(floorsSinceCloth, floorsSinceEye,
 						floorsSinceTreads, floorsSincePet, floorsSinceUnique);
 				fileRW.write(playerData);
 				log.info("Saved data for {}", rsn);
@@ -370,14 +368,14 @@ public class DelveTrackerPlugin extends Plugin
 
 
 	@Provides
-	DelveTrackerConfig provideConfig(ConfigManager configManager)
+	DoomTrackerConfig provideConfig(ConfigManager configManager)
 	{
-		return configManager.getConfig(DelveTrackerConfig.class);
+		return configManager.getConfig(DoomTrackerConfig.class);
 	}
 
 	@Provides
-	DelveTrackerOverlay provideOverlay(DelveTrackerPlugin plugin){
-		return new DelveTrackerOverlay(plugin, client, config);
+	DoomTrackerOverlay provideOverlay(DoomTrackerPlugin plugin){
+		return new DoomTrackerOverlay(plugin, client, config);
 	}
 
 

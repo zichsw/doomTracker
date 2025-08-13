@@ -1,4 +1,4 @@
-package com.example;
+package com.DoomTracker;
 
 import net.runelite.api.Client;
 import net.runelite.client.ui.overlay.OverlayPanel;
@@ -8,14 +8,14 @@ import net.runelite.client.ui.overlay.components.LineComponent;
 import javax.inject.Inject;
 import java.awt.*;
 
-public class DelveTrackerOverlay extends OverlayPanel
+public class DoomTrackerOverlay extends OverlayPanel
 {
-    private final DelveTrackerPlugin plugin;
+    private final DoomTrackerPlugin plugin;
     private final Client client;
-    private final DelveTrackerConfig config;
+    private final DoomTrackerConfig config;
 
     @Inject
-    public DelveTrackerOverlay(DelveTrackerPlugin plugin, Client client, DelveTrackerConfig config)
+    public DoomTrackerOverlay(DoomTrackerPlugin plugin, Client client, DoomTrackerConfig config)
     {
         super(plugin);
         this.plugin = plugin;
