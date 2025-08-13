@@ -7,12 +7,13 @@ import java.io.*;
 
 public class DoomTrackerReadWrite {
     private File file;
-    private Gson gson = new Gson();
+    private Gson gson;
 
-    public DoomTrackerReadWrite(File folder, String rsn) {
+    public DoomTrackerReadWrite(File folder, String rsn, Gson gson) {
         if (!folder.exists()) {
             folder.mkdirs();
         }
+        this.gson = gson;
         this.file = new File(folder, rsn + ".json");
     }
 

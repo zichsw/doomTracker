@@ -53,6 +53,8 @@ import java.util.Arrays;
 import java.util.Set;
 import java.io.File;
 import java.util.HashMap;
+import com.google.gson.Gson;
+
 
 
 @Slf4j
@@ -85,6 +87,9 @@ public class DoomTrackerPlugin extends Plugin
 
 	@Inject
 	private DoomTrackerOverlay overlay;
+
+	@Inject
+	private Gson gson;
 
 	protected File dataFolder = new File(RuneLite.RUNELITE_DIR, "delveTracker");
 
@@ -246,7 +251,7 @@ public class DoomTrackerPlugin extends Plugin
 		}
 
 		rsn = currentName;
-		fileRW = new DoomTrackerReadWrite(dataFolder, rsn);
+		fileRW = new DoomTrackerReadWrite(dataFolder, rsn, gson);
 
 		DoomTrackerReadWrite.Data playerData = fileRW.read();
 		if (playerData != null) {
