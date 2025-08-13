@@ -1,6 +1,6 @@
 # Doom Tracker
 
-Track your cumulative floor and loot chances at the Doom of Mokhahiotl. 
+Track your cumulative floor and loot chances at the Doom of Mokhaiotl. 
 
 Doom Tracker automatically records how many floors you’ve completed since your last drop for each item type - uniques, pet, cloth, eye, and treads - and calculates your cumulative drop chance based on the official rates for each floor.
 
