@@ -3,8 +3,9 @@ package com.DoomTracker;
 import com.google.gson.Gson;
 
 import java.io.*;
+import lombok.extern.slf4j.Slf4j;
 
-
+@Slf4j
 public class DoomTrackerReadWrite {
     private File file;
     private Gson gson;
@@ -46,11 +47,11 @@ public class DoomTrackerReadWrite {
         }
     }
 
-    public Data read(){
+    public Data read() {
         if (!file.exists()) {
             return new Data();
         }
-        try (FileReader reader = new FileReader(file)){
+        try (FileReader reader = new FileReader(file)) {
             Data loaded = gson.fromJson(reader, Data.class);
 
             // bad data
@@ -60,10 +61,10 @@ public class DoomTrackerReadWrite {
             return loaded;
 
         } catch (FileNotFoundException e) {
-            e.printStackTrace();
+            log.error("Data file not found for {}", file.getName(), e);
             return new Data();
         } catch (IOException e) {
-            e.printStackTrace();
+            log.error("Error reading data file {}", file.getName(), e);
             return new Data();
         }
     }
