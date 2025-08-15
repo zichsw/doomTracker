@@ -59,7 +59,7 @@ import com.google.gson.Gson;
 
 @Slf4j
 @PluginDescriptor(
-		name = "Example"
+		name = "DoomTracker"
 )
 public class DoomTrackerPlugin extends Plugin
 {
@@ -78,16 +78,12 @@ public class DoomTrackerPlugin extends Plugin
 
 	@Inject
 	private Client client;
-
 	@Inject
 	private DoomTrackerConfig config;
-
 	@Inject
 	private OverlayManager overlayManager;
-
 	@Inject
 	private DoomTrackerOverlay overlay;
-
 	@Inject
 	private Gson gson;
 
