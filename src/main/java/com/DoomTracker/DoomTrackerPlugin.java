@@ -30,13 +30,9 @@ import com.google.inject.Provides;
 import javax.inject.Inject;
 import lombok.extern.slf4j.Slf4j;
 
-import net.runelite.api.ChatMessageType;
-import net.runelite.api.Client;
-import net.runelite.api.GameState;
+import net.runelite.api.*;
 import net.runelite.api.gameval.InventoryID;
 import net.runelite.api.gameval.ItemID;
-import net.runelite.api.ItemContainer;
-import net.runelite.api.ScriptID;
 
 import net.runelite.api.events.ChatMessage;
 import net.runelite.api.events.GameStateChanged;
@@ -64,6 +60,9 @@ import com.google.gson.Gson;
 public class DoomTrackerPlugin extends Plugin
 {
 	private static final Set<Integer> REGION_IDS = Set.of(5269, 13668, 14180);
+	private static final String CONFIG_GROUP = "DoomTrackerConfig";
+	private static final String CONFIG_ITEM = "playerDataJson";
+
 	private int [] floorsSinceUnique = new int [9];
 	private int [] floorsSinceEye = new int[9];
 	private int [] floorsSinceCloth = new int[9];
@@ -71,8 +70,8 @@ public class DoomTrackerPlugin extends Plugin
 	private int [] floorsSincePet = new int[9];
 
 	private String rsn = null;
-	private DoomTrackerReadWrite fileRW;
 	private boolean dataLoaded = false;
+
 
 
 
@@ -247,15 +246,21 @@ public class DoomTrackerPlugin extends Plugin
 		}
 
 		rsn = currentName;
-		fileRW = new DoomTrackerReadWrite(dataFolder, rsn, gson);
 
-		DoomTrackerReadWrite.Data playerData = fileRW.read();
-		if (playerData != null) {
-			floorsSinceUnique = Arrays.copyOf(playerData.floorsSinceUnique, 9);
-			floorsSincePet = Arrays.copyOf(playerData.floorsSincePet, 9);
-			floorsSinceCloth = Arrays.copyOf(playerData.floorsSinceCloth, 9);
-			floorsSinceTreads = Arrays.copyOf(playerData.floorsSinceTreads, 9);
-			floorsSinceEye = Arrays.copyOf(playerData.floorsSinceEye, 9);
+		String json = config.playerDataJson();
+
+		if (json != null && !json.isEmpty()) {
+			try{
+				PlayerData playerData = gson.fromJson(json, PlayerData.class);
+				floorsSinceUnique = Arrays.copyOf(playerData.floorsSinceUnique, 9);
+				floorsSincePet = Arrays.copyOf(playerData.floorsSincePet, 9);
+				floorsSinceCloth = Arrays.copyOf(playerData.floorsSinceCloth, 9);
+				floorsSinceTreads = Arrays.copyOf(playerData.floorsSinceTreads, 9);
+				floorsSinceEye = Arrays.copyOf(playerData.floorsSinceEye, 9);
+
+			} catch (Exception e) {
+				log.error("Failed to parse player data JSON for {}", rsn, e);
+			}
 		}
 
 		dataLoaded = true;
@@ -263,15 +268,18 @@ public class DoomTrackerPlugin extends Plugin
 	}
 
 	private void save() {
-		if (fileRW != null && rsn != null) {
-			try {
-				DoomTrackerReadWrite.Data playerData = new DoomTrackerReadWrite.Data(floorsSinceCloth, floorsSinceEye,
-						floorsSinceTreads, floorsSincePet, floorsSinceUnique);
-				fileRW.write(playerData);
-				log.info("Saved data for {}", rsn);
-			} catch (Exception e) {
-				log.error("Failed to save data for {}", rsn, e);
-			}
+		if (rsn == null) {
+			return;
+		}
+		try{
+			PlayerData playerData = new PlayerData(floorsSinceCloth, floorsSinceEye,
+					floorsSinceTreads, floorsSinceUnique, floorsSincePet);
+			String json = gson.toJson(playerData);
+			config.playerDataJson(json);
+			log.info("Saved data for {}", rsn);
+
+		} catch (Exception e) {
+			log.error("Failed to save data for {}", rsn, e);
 		}
 	}
 

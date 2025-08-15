@@ -123,5 +123,22 @@ public interface DoomTrackerConfig extends Config
 		return false;
 	}
 
+	@ConfigItem(
+			keyName = "playerDataJson",
+			name = "Player Data Json",
+			description = "Serialized player data",
+			hidden = true
+	)
 
+	default String playerDataJson(){
+		return "";
+	}
+
+	@ConfigItem(
+			keyName = "playerDataJson",
+			name = "",
+			description = "",
+			hidden = true
+	)
+	void playerDataJson(String data);
 }
