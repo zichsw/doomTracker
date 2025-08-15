@@ -47,7 +47,6 @@ import net.runelite.client.ui.overlay.OverlayManager;
 
 import java.util.Arrays;
 import java.util.Set;
-import java.io.File;
 import java.util.HashMap;
 import com.google.gson.Gson;
 
@@ -55,25 +54,19 @@ import com.google.gson.Gson;
 
 @Slf4j
 @PluginDescriptor(
-		name = "DoomTracker"
+		name = "Doom Tracker"
 )
 public class DoomTrackerPlugin extends Plugin
 {
 	private static final Set<Integer> REGION_IDS = Set.of(5269, 13668, 14180);
-	private static final String CONFIG_GROUP = "DoomTrackerConfig";
-	private static final String CONFIG_ITEM = "playerDataJson";
 
 	private int [] floorsSinceUnique = new int [9];
 	private int [] floorsSinceEye = new int[9];
 	private int [] floorsSinceCloth = new int[9];
 	private int [] floorsSinceTreads = new int[9];
 	private int [] floorsSincePet = new int[9];
-
 	private String rsn = null;
 	private boolean dataLoaded = false;
-
-
-
 
 	@Inject
 	private Client client;
@@ -85,8 +78,6 @@ public class DoomTrackerPlugin extends Plugin
 	private DoomTrackerOverlay overlay;
 	@Inject
 	private Gson gson;
-
-	protected File dataFolder = new File(RuneLite.RUNELITE_DIR, "delveTracker");
 
 
 	private final HashMap<Integer, Double> uniqueChance = new HashMap<>();
