@@ -1,13 +1,16 @@
 package com.DoomTracker;
 
+import static com.DoomTracker.DoomTrackerConfig.CONFIG_GROUP;
 import net.runelite.client.config.Config;
 import net.runelite.client.config.ConfigGroup;
 import net.runelite.client.config.ConfigItem;
 
 
-@ConfigGroup("DoomTrackerConfig")
+@ConfigGroup(DoomTrackerConfig.CONFIG_GROUP)
 public interface DoomTrackerConfig extends Config
 {
+	String CONFIG_GROUP = "DoomTrackerConfig";
+	String CONFIG_TRACKED = "tracked";
 	// Unique
 	@ConfigItem(
 			position = 0,

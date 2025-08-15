@@ -27,7 +27,10 @@
 
 package com.DoomTracker;
 import com.google.inject.Provides;
+
 import javax.inject.Inject;
+import lombok.Getter;
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
 import net.runelite.api.ChatMessageType;
@@ -37,44 +40,32 @@ import net.runelite.api.gameval.InventoryID;
 import net.runelite.api.gameval.ItemID;
 import net.runelite.api.ItemContainer;
 import net.runelite.api.ScriptID;
+import com.google.common.base.Strings;
 
 import net.runelite.api.events.ChatMessage;
 import net.runelite.api.events.GameStateChanged;
 import net.runelite.api.events.ScriptPreFired;
 
-import net.runelite.client.RuneLite;
 import net.runelite.client.config.ConfigManager;
 import net.runelite.client.eventbus.Subscribe;
 import net.runelite.client.plugins.Plugin;
 import net.runelite.client.plugins.PluginDescriptor;
 import net.runelite.client.ui.overlay.OverlayManager;
 
-import java.util.Arrays;
 import java.util.Set;
-import java.io.File;
 import java.util.HashMap;
 import com.google.gson.Gson;
 
-
-
 @Slf4j
 @PluginDescriptor(
-		name = "Example"
+		name = "Doom Tracker"
 )
 public class DoomTrackerPlugin extends Plugin
 {
 	private static final Set<Integer> REGION_IDS = Set.of(5269, 13668, 14180);
-	private int [] floorsSinceUnique = new int [9];
-	private int [] floorsSinceEye = new int[9];
-	private int [] floorsSinceCloth = new int[9];
-	private int [] floorsSinceTreads = new int[9];
-	private int [] floorsSincePet = new int[9];
 
-	private String rsn = null;
-	private DoomTrackerReadWrite fileRW;
-	private boolean dataLoaded = false;
-
-
+	@Getter
+	private Data data;
 
 	@Inject
 	private Client client;
@@ -89,18 +80,16 @@ public class DoomTrackerPlugin extends Plugin
 	private DoomTrackerOverlay overlay;
 
 	@Inject
+	ConfigManager configManager;
+
+	@Inject
 	private Gson gson;
-
-	protected File dataFolder = new File(RuneLite.RUNELITE_DIR, "delveTracker");
-
 
 	private final HashMap<Integer, Double> uniqueChance = new HashMap<>();
 	private final HashMap<Integer, Double> petChance = new HashMap<>();
 	private final HashMap<Integer, Double> clothChance = new HashMap<>();
 	private final HashMap<Integer, Double> eyeChance = new HashMap<>();
 	private final HashMap<Integer, Double> treadsChance = new HashMap<>();
-
-
 
 	@Override
 	protected void startUp() throws Exception
@@ -136,7 +125,6 @@ public class DoomTrackerPlugin extends Plugin
 		treadsChance.put(7, 1.0/720.00);
 		treadsChance.put(8, 1.0/630.00);
 		treadsChance.put(9, 1.0/540.00);
-
 
 		//chances of unique from each floor
 		uniqueChance.put(1, 0.0);
@@ -201,6 +189,7 @@ public class DoomTrackerPlugin extends Plugin
 		}
 	}
 
+
 	@Subscribe
 	public void onScriptPreFired(ScriptPreFired event)
 	{
@@ -212,71 +201,39 @@ public class DoomTrackerPlugin extends Plugin
 
 			for (var item : inv.getItems()) {
 				if (item.getId() == ItemID.AVERNIC_TREADS){
-					floorsSinceTreads = new int [9];
-					floorsSinceUnique = new int[9];
-
+					getData().setFloorsSinceCloth(new int [9]);
+					getData().setFloorsSinceUnique(new int [9]);
 				}
 				if (item.getId() == ItemID.DOMPET){
-					floorsSincePet = new int [9];
-
+					getData().setFloorsSincePet(new int [9]);
 
 				}
 				if (item.getId() == ItemID.EYE_OF_AYAK){
-					floorsSinceEye = new int [9];
-					floorsSinceUnique = new int[9];
-
-
+					getData().setFloorsSinceEye(new int [9]);
+					getData().setFloorsSinceUnique(new int [9]);
 				}
 				if (item.getId() == ItemID.MOKHAIOTL_CLOTH){
-					floorsSinceCloth = new int [9];
-					floorsSinceUnique = new int[9];
-
+					getData().setFloorsSinceCloth(new int [9]);
+					getData().setFloorsSinceUnique(new int [9]);
 				}
 			}
 		}
 	}
 
-	private void populate () {
-		if (client.getGameState() != GameState.LOGGED_IN || client.getLocalPlayer() == null) {
-			return;
+	private void populate() {
+		String json = configManager.getRSProfileConfiguration(DoomTrackerConfig.CONFIG_GROUP, DoomTrackerConfig.CONFIG_TRACKED);
+		if (Strings.isNullOrEmpty(json))
+		{
+			data = new Data();
 		}
-
-		String currentName = client.getLocalPlayer().getName();
-		if (currentName == null || currentName.isEmpty()) {
-			return;
+		else
+		{
+			data = gson.fromJson(json, Data.class);
 		}
-
-		if (dataLoaded && rsn != null && rsn.equals(currentName)){
-			return; // prevents multiple loads
-		}
-
-		rsn = currentName;
-		fileRW = new DoomTrackerReadWrite(dataFolder, rsn, gson);
-
-		DoomTrackerReadWrite.Data playerData = fileRW.read();
-		if (playerData != null) {
-			floorsSinceUnique = Arrays.copyOf(playerData.floorsSinceUnique, 9);
-			floorsSincePet = Arrays.copyOf(playerData.floorsSincePet, 9);
-			floorsSinceCloth = Arrays.copyOf(playerData.floorsSinceCloth, 9);
-			floorsSinceTreads = Arrays.copyOf(playerData.floorsSinceTreads, 9);
-			floorsSinceEye = Arrays.copyOf(playerData.floorsSinceEye, 9);
-		}
-
-		dataLoaded = true;
-		log.info("Loaded data for {}", rsn);
 	}
 
 	private void save() {
-		if (fileRW != null && rsn != null) {
-			try {
-				DoomTrackerReadWrite.Data playerData = new DoomTrackerReadWrite.Data(floorsSinceCloth, floorsSinceEye,
-						floorsSinceTreads, floorsSincePet, floorsSinceUnique);
-				fileRW.write(playerData);
-				log.info("Saved data for {}", rsn);
-			} catch (Exception e) {
-				log.error("Failed to save data for {}", rsn, e);
-			}
-		}
+		configManager.setRSProfileConfiguration(DoomTrackerConfig.CONFIG_GROUP, DoomTrackerConfig.CONFIG_TRACKED, gson.toJson(data));
 	}
 
 	public int getTotalFloors(int [] counter){
@@ -286,8 +243,6 @@ public class DoomTrackerPlugin extends Plugin
 		}
 		return floors;
 	}
-
-
 
 	public boolean inRegion(){
 		final var region = client.getTopLevelWorldView();
@@ -302,11 +257,11 @@ public class DoomTrackerPlugin extends Plugin
 	}
 
 	private void addFloorCompletions(int level) {
-		floorsSinceCloth [level - 1] += 1;
-		floorsSinceEye [level - 1] += 1;
-		floorsSinceTreads [level - 1] += 1;
-		floorsSincePet [level - 1] += 1;
-		floorsSinceUnique[level - 1] += 1;
+		getData().incrementFloorClothCompletions(level);
+		getData().incrementFloorEyeCompletions(level);
+		getData().incrementFloorTreadCompletions(level);
+		getData().incrementFloorUniqueCompletions(level);
+		getData().incrementFloorPetCompletions(level);
 
 		save(); // Right now, plugin saves immediately after updating. Hopefully doesn't cause issue with performance
 	}
@@ -322,46 +277,24 @@ public class DoomTrackerPlugin extends Plugin
 		return 1 - noDropProb;
 	}
 
-
-
-	public int [] getFloorsSinceCloth() {
-		return floorsSinceCloth;
-	}
-
-	public int [] getFloorsSinceEye() {
-		return floorsSinceEye;
-	}
-
-	public int [] getFloorsSinceTreads() {
-		return floorsSinceTreads;
-	}
-
-	public int [] getFloorsSincePet() {
-		return floorsSincePet;
-	}
-
-	public int [] getFloorsSinceUnique() {
-		return floorsSinceUnique;
-	}
-
 	public double getClothRolls() {
-		return calculateCumulativeRolls(floorsSinceCloth, clothChance);
+		return calculateCumulativeRolls(getData().getFloorsSinceCloth(), clothChance);
 	}
 
 	public double getEyeRolls() {
-		return calculateCumulativeRolls(floorsSinceEye, eyeChance);
+		return calculateCumulativeRolls(getData().getFloorsSinceEye(), eyeChance);
 	}
 
 	public double getTreadsRolls() {
-		return calculateCumulativeRolls(floorsSinceTreads, treadsChance);
+		return calculateCumulativeRolls(getData().getFloorsSinceTreads(), treadsChance);
 	}
 
 	public double getUniqueRolls() {
-		return calculateCumulativeRolls(floorsSinceUnique, uniqueChance);
+		return calculateCumulativeRolls(getData().getFloorsSinceUnique(), uniqueChance);
 	}
 
 	public double getPetRolls() {
-		return calculateCumulativeRolls(floorsSincePet, petChance);
+		return calculateCumulativeRolls(getData().getFloorsSincePet(), petChance);
 	}
 
 
@@ -376,6 +309,57 @@ public class DoomTrackerPlugin extends Plugin
 		return new DoomTrackerOverlay(plugin, client, config);
 	}
 
+	public static class Data{
+		@Getter
+		@Setter
+		public int [] floorsSinceCloth;
+		@Getter
+		@Setter
+		public int [] floorsSinceEye;
+		@Getter
+		@Setter
+		public int [] floorsSinceTreads;
+		@Getter
+		@Setter
+		public int [] floorsSincePet;
+		@Getter
+		@Setter
+		public int [] floorsSinceUnique;
+
+		public Data()
+		{
+			this.floorsSinceCloth = new int[9];
+			this.floorsSinceEye = new int[9];
+			this.floorsSinceTreads = new int[9];
+			this.floorsSincePet = new int[9];
+			this.floorsSinceUnique = new int[9];
+		}
+
+		public void incrementFloorClothCompletions(int level)
+		{
+			this.floorsSinceCloth[level - 1] += 1;
+		}
 
 
+		public void incrementFloorEyeCompletions(int level)
+		{
+			this.floorsSinceEye[level - 1] += 1;
+		}
+
+		public void incrementFloorTreadCompletions(int level)
+		{
+			this.floorsSinceTreads[level - 1] += 1;
+		}
+
+
+		public void incrementFloorPetCompletions(int level)
+		{
+			this.floorsSincePet[level - 1] += 1;
+		}
+
+		public void incrementFloorUniqueCompletions(int level)
+		{
+			this.floorsSinceUnique[level - 1] += 1;
+		}
+	}
 }
