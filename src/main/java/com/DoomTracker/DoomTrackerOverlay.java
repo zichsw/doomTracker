@@ -39,7 +39,7 @@ public class DoomTrackerOverlay extends OverlayPanel
         if (config.showFloorsSinceUnique())
         {
             panelComponent.getChildren().add(LineComponent.builder()
-                    .left("Floors without unique:")
+                    .left("Floors:")
                     .right(String.valueOf(plugin.getTotalFloors(plugin.getFloorsSinceUnique())))
                     .build());
         }
@@ -56,7 +56,7 @@ public class DoomTrackerOverlay extends OverlayPanel
         if (config.showFloorsSincePet())
         {
             panelComponent.getChildren().add(LineComponent.builder()
-                    .left("Floors without pet:")
+                    .left("Floors (pet):")
                     .right(String.valueOf(plugin.getTotalFloors(plugin.getFloorsSincePet())))
                     .build());
         }
@@ -73,7 +73,7 @@ public class DoomTrackerOverlay extends OverlayPanel
         if (config.showFloorsSinceCloth())
         {
             panelComponent.getChildren().add(LineComponent.builder()
-                    .left("Floors without cloth:")
+                    .left("Floors (cloth):")
                     .right(String.valueOf(plugin.getTotalFloors(plugin.getFloorsSinceCloth())))
                     .build());
         }
@@ -90,7 +90,7 @@ public class DoomTrackerOverlay extends OverlayPanel
         if (config.showFloorsSinceEye())
         {
             panelComponent.getChildren().add(LineComponent.builder()
-                    .left("Floors without eye:")
+                    .left("Floors (eye):")
                     .right(String.valueOf(plugin.getTotalFloors(plugin.getFloorsSinceEye())))
                     .build());
         }
@@ -107,7 +107,7 @@ public class DoomTrackerOverlay extends OverlayPanel
         if (config.showFloorsSinceTreads())
         {
             panelComponent.getChildren().add(LineComponent.builder()
-                    .left("Floors without treads:")
+                    .left("Floors (treads):")
                     .right(String.valueOf(plugin.getTotalFloors(plugin.getFloorsSinceTreads())))
                     .build());
         }

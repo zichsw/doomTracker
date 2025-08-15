@@ -12,8 +12,8 @@ public interface DoomTrackerConfig extends Config
 	@ConfigItem(
 			position = 0,
 			keyName = "showFloorsSinceUnique",
-			name = "Floors Without Unique ",
-			description = "Show floors since unique in overlay"
+			name = "Show total floor completions",
+			description = "Resets upon receiving any unique item."
 	)
 	default boolean showFloorsSinceUnique()
 	{
@@ -23,8 +23,8 @@ public interface DoomTrackerConfig extends Config
 	@ConfigItem(
 			position = 1,
 			keyName = "showChanceOfUnique",
-			name = "Chance of Unique ",
-			description = "Show cumulative chance of unique"
+			name = "Show chance of unique",
+			description = "Show cumulative chance of unique. Resets upon receiving any unique item."
 	)
 	default boolean showChanceOfUnique()
 	{
@@ -35,19 +35,19 @@ public interface DoomTrackerConfig extends Config
 	@ConfigItem(
 			position = 2,
 			keyName = "showFloorsSincePet",
-			name = "Floors without pet ",
-			description = "Show floors without pet in overlay"
+			name = "Show floors without pet",
+			description = "Show floors without pet in the overlay. Resets upon receiving a pet."
 	)
 	default boolean showFloorsSincePet()
 	{
-		return true;
+		return false;
 	}
 
 	@ConfigItem(
 			position = 3,
 			keyName = "showChanceOfPet",
-			name = "Chance of pet ",
-			description = "Show cumulative chance of pet"
+			name = "Show chance of pet ",
+			description = "Show cumulative chance of pet. Resets upon receiving a pet."
 	)
 	default boolean showChanceOfPet()
 	{
@@ -58,8 +58,8 @@ public interface DoomTrackerConfig extends Config
 	@ConfigItem(
 			position = 4,
 			keyName = "showFloorsSinceCloth",
-			name = "Floors without cloth ",
-			description = "Show floors without cloth"
+			name = "Show floors without pet",
+			description = "Show floors completed without Mokhaiotl Cloth. Resets upon receiving the cloth. "
 	)
 	default boolean showFloorsSinceCloth()
 	{
@@ -69,8 +69,8 @@ public interface DoomTrackerConfig extends Config
 	@ConfigItem(
 			position = 5,
 			keyName = "showChanceOfCloth",
-			name = "Chance of cloth ",
-			description = "Show cumulative chance of cloth"
+			name = "Show chance of cloth",
+			description = "Show cumulative chance for Mokhaiotl Cloth. Resets upon receiving the cloth."
 	)
 	default boolean showChanceOfCloth()
 	{
@@ -81,8 +81,8 @@ public interface DoomTrackerConfig extends Config
 	@ConfigItem(
 			position = 6,
 			keyName = "showFloorsSinceEye",
-			name = "Floors without eye ",
-			description = "Show floors without Eye of Ayak"
+			name = "Show floors without eye",
+			description = "Show floors completed without Eye of Ayak. Resets upon receiving the eye."
 	)
 	default boolean showFloorsSinceEye()
 	{
@@ -92,8 +92,8 @@ public interface DoomTrackerConfig extends Config
 	@ConfigItem(
 			position = 7,
 			keyName = "showChanceOfEye",
-			name = "Chance of eye ",
-			description = "Show cumulative chance of Eye of Ayak"
+			name = "Show chance of eye",
+			description = "Show cumulative chance of Eye of Ayak.Resets upon receiving the eye."
 	)
 	default boolean showChanceOfEye()
 	{
@@ -104,8 +104,8 @@ public interface DoomTrackerConfig extends Config
 	@ConfigItem(
 			position = 8,
 			keyName = "showFloorsSinceTreads",
-			name = "Floors without treads ",
-			description = "Show floors without treads"
+			name = "Show floors without treads",
+			description = "Show floors completed without Avernic Treads. Resets upon receiving treads."
 	)
 	default boolean showFloorsSinceTreads()
 	{
@@ -115,8 +115,8 @@ public interface DoomTrackerConfig extends Config
 	@ConfigItem(
 			position = 9,
 			keyName = "showChanceOfTreads",
-			name = "Chance of treads ",
-			description = "Show cumulative chance of treads"
+			name = "Show chance of treads",
+			description = "Show cumulative chance of Avernic Treads. Resets upon receiving treads."
 	)
 	default boolean showChanceOfTreads()
 	{
